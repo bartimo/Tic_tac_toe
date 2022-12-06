@@ -20,6 +20,8 @@ class Board
     puts ''
   end
 
+
+
   def next_round()
     @round += 1
   end
@@ -37,12 +39,28 @@ end
 
 #Program Methods
 
-def play_turn(board,player)
+
+def get_selection(board,player)
+  valid_selection = false
   puts "Round #{board.round} - #{player.name}"
   board.display
-  puts 'Enter your selection (Column/row)'
-  selection = gets.chomp
-  p selection
+  while not valid_selection
+    puts 'Enter your selection (Column/row)'
+    selection = gets.chomp.split('')
+    if selection[0].upcase! >= 'A' && selection[0] <= 'C' then
+      valid_selection = true
+      selection
+    else
+      puts "Invalid Selection - Please enter using the format \"A1\"\n"
+    end
+  end
+
+end
+
+
+
+#Convert
+def convert_selection
 end
 
 board = Board.new
@@ -58,10 +76,14 @@ puts ''
 #puts ''
 player1 = Player.new("Biffington" , 'X')
 player2 = Player.new("Houndsworth" , ')')
+
+
 puts "#{player1.name} VS #{player2.name} BEGIN"
 #sleep(1)
 puts ''
 puts ''
-play_turn(board,player1)
+selection = get_selection(board,player1)
+p selection
+
 
 # rubocop:enable all
