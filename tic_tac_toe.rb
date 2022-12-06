@@ -20,7 +20,10 @@ class Board
     puts ''
   end
 
+  def place_selection(board, selection, player)
+    @board[1][1] = "X"
 
+  end
 
   def next_round()
     @round += 1
@@ -46,21 +49,23 @@ def get_selection(board,player)
   board.display
   while not valid_selection
     puts 'Enter your selection (Column/row)'
-    selection = gets.chomp.split('')
-    if selection[0].upcase! >= 'A' && selection[0] <= 'C' then
+    selection = gets.chomp.upcase.split('')
+    if selection[0].between?('A','C') && selection[1].between?('1','3')  && selection.length == 2 then
       valid_selection = true
-      selection
-    else
-      puts "Invalid Selection - Please enter using the format \"A1\"\n"
-    end
+   else
+     puts 'Invalid Selection - please enter using format "A1"'
+   end
   end
-
+  selection
 end
 
 
 
 #Convert
-def convert_selection
+def to_num_array(selection)
+  selection[0] = selection[0].ord - 65
+  selection[1] = selection[1].to_i - 1
+  selection
 end
 
 board = Board.new
@@ -75,15 +80,18 @@ puts ''
 #sleep(1)
 #puts ''
 player1 = Player.new("Biffington" , 'X')
-player2 = Player.new("Houndsworth" , ')')
+player2 = Player.new("Houndsworth" , 'O')
 
 
 puts "#{player1.name} VS #{player2.name} BEGIN"
+current_player = player1
 #sleep(1)
 puts ''
 puts ''
-selection = get_selection(board,player1)
-p selection
-
-
+selection = get_selection(board, current_player)
+if selection then
+  selection = to_num_array(selection)
+  placed = board.place_selection(board, selection, current_player)
+  board.display
+end
 # rubocop:enable all
