@@ -7,6 +7,7 @@ class Board
     @board = [['.', '.', '.'], ['.', '.', '.'], ['.', '.', '.']]
     @round = 1
     @turn = 1
+    @game_history = []
   end
 
   def display
@@ -18,98 +19,118 @@ class Board
     puts ''
   end
 
-  def place_selection(board, selection, player)
+  def is_valid_selection?(selection)
+    valid = false
+    unless selection.empty?
+      if selection[0].between?('A', 'C') && selection[1].between?('1', '3') && selection.length == 2 
+        valid = true
+      end
+    end 
+    return valid
+  end
+
+  def is_legal_play?(selection)
     if  @board[selection[0]][selection[1]] == '.'
-      @board[selection[0]][selection[1]] = player.symbol
       return true
     else
       return false
     end
-
   end
 
-  def next_round
-    @round += 1
+  def to_num_array(selection)
+    num_array = selection.clone
+    num_array[0] = num_array[0].ord - 65
+    num_array[1] = num_array[1].to_i - 1
+    num_array
   end
-end
+
+  def place_selection(selection, player)
+    if  @board[selection[1]][selection[0]] == '.'
+      @board[selection[1]][selection[0]] = player.symbol
+      return true
+    else
+      return false
+    end
+  end
+
+  def found_winner?
+    winning_string = "XXXOOO"
+
+    p temp
+
+  end 
+
+
+
+  def save_history(selection)
+    @game_history << selection
+  end
+
+
+  def next_turn
+    @turn += 1
+  end
+
+
+end #Board
 
 # Defines Player Class
 class Player
-  attr_reader :name, :symbol
+  attr_reader :name, :symbol, :player_num
 
   def initialize(player_num, name, symbol)
+    @player_num = player_num
     @name = name
     @symbol = symbol
   end
-
 end
 
-# Program Methods
 
-def get_selection(board,player)
-  valid_selection = false
-  until valid_selection
-    puts 'Enter your selection (Column/row)'
-    selection = gets.chomp.upcase.split('')
-    if selection[0].between?('A', 'C') && selection[1].between?('1', '3') && selection.length == 2
-      valid_selection = true
-    else
-      puts 'Invalid Selection - please enter using format "A1"'
-    end
-  end
-  selection
-end
 
-def to_num_array(selection)
-  selection[0] = selection[0].ord - 65
-  selection[1] = selection[1].to_i - 1
-  selection
-end
-
+# Begin Program
 board = Board.new
+turn_end = false
+game_end = false
+valid_selection = true
 
-puts 'Welcome to Tic-Tac-Toe!'
-puts ''
-# sleep(1)
-# puts 'Player 1, enter your name:'
-# player1 = Player.new(gets.chomp,'X')
-# puts 'Player 2, enter your name:'
-# player2 = Player.new(gets.chomp,'O')
-# sleep(1)
-# puts ''
+#set players
 player1 = Player.new(1, 'Biffington', 'X')
 player2 = Player.new(2, 'Houndsworth', 'O')
-game_end = false
-placed = false
-turn_end = false
-
-puts "#{player1.name} VS #{player2.name} BEGIN"
-
-
 current_player = player1
+#display board
+
 until game_end
-
-  placed = false
-  # sleep(1)
-  puts ''
-  puts ''
-  puts "Round #{board.round} - #{current_player.name}"
   board.display
-  selection = get_selection(board, current_player)
-  if selection 
-    selection = to_num_array(selection)
-    placed = board.place_selection(board, selection, current_player)
-    if placed 
-      board.next_round
-      if current_player == player1
-        current_player = player2
-      else
-        current_player = player1
-      end
-    else
-      puts "Ineligible selection - please select a valid position"
-    end 
+  puts "Player #{current_player.player_num} - #{current_player.name}: Enter your selection (Column/row)"
+  #start turn
+  turn_end = false
+  until turn_end
+  #get selection
+    selection = gets.chomp.upcase.split('')
+    unless board.is_valid_selection?(selection) then
+      puts 'Invalid Selection - please enter using format "A1"'
+    else  
+        unless board.is_legal_play?(board.to_num_array(selection)) then
+          puts "Position #{selection.join('')} is already ocupied. Please try again. "
+        else
+          board.place_selection(board.to_num_array(selection),current_player) 
+          board.save_history(selection)
+          game_end = board.found_winner?
+          puts("game over: #{game_end}")
+          board.next_turn
+          turn_end = true
+          current_player == player1 ? current_player = player2 : current_player = player1   
+        end
+    end
 
-  end
-end
+    #check for valid selection entry
+    #convert selection to numbers
+    #check for legal play
+    #place square
+    #check for win
+    #change player
+    #increment score counter
+  #
+  end #turn_end
+end #game_end
 # rubocop:enable all
