@@ -21,7 +21,7 @@ class Board
 
   def is_valid_selection?(selection)
     valid = false
-    unless selection.empty?
+    unless selection.empty? || selection.length == 1
       if selection[0].between?('A', 'C') && selection[1].between?('1', '3') && selection.length == 2 
         valid = true
       end
@@ -54,9 +54,22 @@ class Board
   end
 
   def found_winner?
-    winning_string = "XXXOOO"
+    winning_combos = []
+    winning_combos.push((@board[0][0] + @board[0][1] + @board[0][2]).gsub('.',''))
+    winning_combos.push((@board[1][0] + @board[1][1] + @board[1][2]).gsub('.',''))
+    winning_combos.push((@board[2][0] + @board[2][1] + @board[2][2]).gsub('.',''))
+    winning_combos.push((@board[0][0] + @board[1][0] + @board[2][0]).gsub('.',''))
+    winning_combos.push((@board[0][0] + @board[1][0] + @board[2][0]).gsub('.',''))
+    winning_combos.push((@board[0][1] + @board[1][1] + @board[2][1]).gsub('.',''))
+    winning_combos.push((@board[0][2] + @board[1][2] + @board[2][2]).gsub('.',''))
+    winning_combos.push((@board[0][0] + @board[1][1] + @board[2][2]).gsub('.',''))
+    winning_combos.push((@board[2][0] + @board[1][1] + @board[0][2]).gsub('.',''))
 
-    p temp
+    if winning_combos.include?("XXX") || winning_combos.include?("OOO")
+      return true
+    else
+      return false
+    end
 
   end 
 
@@ -85,17 +98,22 @@ class Player
   end
 end
 
-
-
 # Begin Program
 board = Board.new
 turn_end = false
 game_end = false
 valid_selection = true
-
 #set players
-player1 = Player.new(1, 'Biffington', 'X')
-player2 = Player.new(2, 'Houndsworth', 'O')
+
+
+puts "Player 1 - Enter your name"
+name = gets.chomp
+player1 = Player.new(1, name, 'X')
+puts "Player 2 - Enter your name"
+name = gets.chomp
+player2 = Player.new(2, name, 'O')
+
+
 current_player = player1
 #display board
 
@@ -116,21 +134,20 @@ until game_end
           board.place_selection(board.to_num_array(selection),current_player) 
           board.save_history(selection)
           game_end = board.found_winner?
-          puts("game over: #{game_end}")
-          board.next_turn
-          turn_end = true
-          current_player == player1 ? current_player = player2 : current_player = player1   
+          if game_end
+            turn_end = true
+            puts ''
+            puts ''
+            puts "Congratulations #{current_player.name} - YOU HAVE WON!"
+            board.display
+          else
+            board.next_turn
+            turn_end = true
+            current_player == player1 ? current_player = player2 : current_player = player1
+          end
+               
         end
     end
-
-    #check for valid selection entry
-    #convert selection to numbers
-    #check for legal play
-    #place square
-    #check for win
-    #change player
-    #increment score counter
-  #
   end #turn_end
 end #game_end
 # rubocop:enable all
