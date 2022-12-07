@@ -19,7 +19,13 @@ class Board
   end
 
   def place_selection(board, selection, player)
-    @board[2][0] = 'X'
+    if  @board[selection[0]][selection[1]] == '.'
+      @board[selection[0]][selection[1]] = player.symbol
+      return true
+    else
+      return false
+    end
+
   end
 
   def next_round
@@ -31,18 +37,17 @@ end
 class Player
   attr_reader :name, :symbol
 
-  def initialize(name, symbol)
+  def initialize(player_num, name, symbol)
     @name = name
     @symbol = symbol
   end
+
 end
 
 # Program Methods
 
 def get_selection(board,player)
   valid_selection = false
-  puts "Round #{board.round} - #{player.name}"
-  board.display
   until valid_selection
     puts 'Enter your selection (Column/row)'
     selection = gets.chomp.upcase.split('')
@@ -72,18 +77,39 @@ puts ''
 # player2 = Player.new(gets.chomp,'O')
 # sleep(1)
 # puts ''
-player1 = Player.new('Biffington', 'X')
-player2 = Player.new('Houndsworth', 'O')
+player1 = Player.new(1, 'Biffington', 'X')
+player2 = Player.new(2, 'Houndsworth', 'O')
+game_end = false
+placed = false
+turn_end = false
 
 puts "#{player1.name} VS #{player2.name} BEGIN"
+
+
 current_player = player1
-# sleep(1)
-puts ''
-puts ''
-selection = get_selection(board, current_player)
-if selection
-  selection = to_num_array(selection)
-  placed = board.place_selection(board, selection, current_player)
+until game_end
+
+  placed = false
+  # sleep(1)
+  puts ''
+  puts ''
+  puts "Round #{board.round} - #{current_player.name}"
   board.display
+  selection = get_selection(board, current_player)
+  if selection 
+    selection = to_num_array(selection)
+    placed = board.place_selection(board, selection, current_player)
+    if placed 
+      board.next_round
+      if current_player == player1
+        current_player = player2
+      else
+        current_player = player1
+      end
+    else
+      puts "Ineligible selection - please select a valid position"
+    end 
+
+  end
 end
 # rubocop:enable all
